@@ -1,0 +1,38 @@
+--AppleScript to recursively search through the files and subfolders in a folder that the user selects, and copy these folders to a flat structure elsewhere
+--Inspired by the need to capture documents on a teacher's mac created by Apple Classroom which seem to disappear after the Classroom app is quit
+
+-- Define the source folder and the destination folder
+set sourceFolder to (choose folder with prompt "Select the folder to search through:")
+set destinationFolder to ((path to desktop as text) & "CopiedDocuments:")
+
+-- Create the destination folder if it doesn't exist
+tell application "Finder"
+	if not (exists folder destinationFolder) then
+		make new folder at desktop with properties {name:"CopiedDocuments"}
+	end if
+end tell
+
+-- Function to recursively search through folders and copy documents
+on searchAndCopy(sourceFolder, destinationFolder)
+	tell application "Finder"
+		set fileList to every file of sourceFolder
+		set folderList to every folder of sourceFolder
+		
+		-- Copy files to the destination folder
+		repeat with aFile in fileList
+			duplicate aFile to destinationFolder
+		end repeat
+		
+		-- Recursively search through subfolders
+		repeat with aFolder in folderList
+			set thefileList to every file of aFolder
+			repeat with aFile in thefileList
+				duplicate aFile to destinationFolder
+			end repeat
+			--searchAndCopy(aFolder, destinationFolder)
+		end repeat
+	end tell
+end searchAndCopy
+
+-- Call the function to start the process
+searchAndCopy(sourceFolder, destinationFolder)
